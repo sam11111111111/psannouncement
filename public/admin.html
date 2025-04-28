@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Manage PS</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <h1>🎮 Admin Control Panel</h1>
+
+  <div class="counterCard">
+    <h2>Update PS Counter</h2>
+    <select id="psSelect">
+      <option value="1">PS 1</option>
+      <option value="2">PS 2</option>
+      <option value="3">PS 3</option>
+      <option value="4">PS 4</option>
+      <option value="5">PS 5</option>
+    </select>
+
+    <input type="number" id="countInput" placeholder="New Count">
+    <br>
+
+    <button class="button" onclick="updateCounter()">Update</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    function updateCounter() {
+      const psNumber = parseInt(document.getElementById('psSelect').value);
+      const count = parseInt(document.getElementById('countInput').value);
+
+      if (!isNaN(psNumber) && !isNaN(count)) {
+        socket.emit('updateCounter', { psNumber, count });
+        alert(`Updated PS ${psNumber} to ${count} games.`);
+      } else {
+        alert("Please fill both fields!");
+      }
+    }
+  </script>
+</body>
+</html>

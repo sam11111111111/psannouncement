@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My PS Counter</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.min.js"></script>
+
+</head>
+<body>
+
+  <h1 id="welcomeText">🕹️ ወደ jo ps<span id="psNumber">?</span> እንኳን በደህና መጡ!</h1>
+
+  <div id="counterArea" class="counterCard">
+    <h2>🎮 ጨዋታ:</h2>
+    <h3 id="count">0</h3>
+    <h4>💰 ጠቅላላ: <span id="totalPrice">0</span> ብር</h4>
+    <div id="funMessage" class="hidden">🎉</div> <!-- Fun Message Area -->
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const gamePrice = 7;
+
+    // Fun random messages
+    const messages = [
+      "🎉 Great job!",
+      "🔥 You're on fire!",
+      "🚀 Keep going!",
+      "🏆 Champion!",
+      "🎮 More power!",
+      "😁 Fun times!",
+      "✨ You're awesome!",
+      "🎊 New record soon?",
+      "🎯 Stay focused!"
+    ];
+
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    const selectedPS = parseInt(getQueryParam('ps'));
+
+    if (!selectedPS || selectedPS < 1) {
+      alert("PS number not valid! Example: /client.html?ps=2");
+    } else {
+      document.getElementById('psNumber').textContent = selectedPS;
+      socket.emit('selectPS', selectedPS);
+    }
+
+    socket.on('counterUpdated', ({ psNumber, count }) => {
+      document.getElementById('count').textContent = count;
+      document.getElementById('totalPrice').textContent = count * gamePrice;
+
+      const countElement = document.getElementById('count');
+      const funMessage = document.getElementById('funMessage');
+      const welcomeText = document.getElementById('welcomeText');
+
+      // Animate the count
+      countElement.style.transition = "transform 0.3s ease, color 0.3s ease";
+      countElement.style.transform = "scale(1.5)";
+      countElement.style.color = "#4CAF50";
+
+      setTimeout(() => {
+        countElement.style.transform = "scale(1)";
+        countElement.style.color = "#333";
+      }, 300);
+
+      // Bounce the Welcome Title
+      welcomeText.style.transition = "transform 0.4s ease";
+      welcomeText.style.transform = "translateY(-10px)";
+      setTimeout(() => {
+        welcomeText.style.transform = "translateY(0px)";
+      }, 400);
+
+      // Show fun random message
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+      funMessage.textContent = randomMessage;
+      funMessage.classList.remove('hidden');
+      funMessage.style.opacity = 1;
+      funMessage.style.transition = "opacity 0.5s";
+
+      setTimeout(() => {
+        funMessage.style.opacity = 0;
+      }, 1500);
+
+      // After updating the count and totalPrice
+
+// Confetti when reaching milestone (10, 20, 30, etc.)
+if (count > 0 && count % 10 === 0) {
+    confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+    });
+}
+
+    });
+  </script>
+</body>
+</html>
